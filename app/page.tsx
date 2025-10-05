@@ -5,6 +5,11 @@ import { useAuth } from "@clerk/nextjs";
 import { useAuthDialogStore } from "@/store/auth-dialog-store";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import type { Project } from "@/lib/db/queries/projects";
+import { saveProjectPrompt } from "@/lib/utils";
 
 const PROMPT_STORAGE_KEY = "froggy-home-prompt";
 
@@ -12,6 +17,8 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const { isSignedIn } = useAuth();
   const { openSignIn } = useAuthDialogStore();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Load prompt from localStorage on mount
   useEffect(() => {
@@ -20,6 +27,30 @@ export default function Home() {
       setPrompt(savedPrompt);
     }
   }, []);
+
+  // Create project mutation
+  const createProjectMutation = useMutation({
+    mutationFn: async (promptText: string) => {
+      // Get first 5 words for project name
+      const words = promptText.trim().split(/\s+/);
+      const projectName = words.slice(0, 5).join(" ");
+
+      const { data } = await axios.post<Project>("/api/projects", {
+        name: projectName,
+      });
+      return { project: data, initialPrompt: promptText };
+    },
+    onSuccess: ({ project, initialPrompt }) => {
+      // Clear the home prompt from localStorage
+      localStorage.removeItem(PROMPT_STORAGE_KEY);
+      // Store the initial prompt for this project
+      saveProjectPrompt(project.id, initialPrompt);
+      // Invalidate projects query to refresh sidebar
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      // Navigate to the new project
+      router.push(`/project/${project.id}`);
+    },
+  });
 
   const handleChange = (value: string) => {
     setPrompt(value);
@@ -32,7 +63,10 @@ export default function Home() {
       openSignIn();
       return;
     }
-    console.log(prompt);
+
+    if (!prompt.trim()) return;
+
+    createProjectMutation.mutate(prompt);
   };
 
   return (

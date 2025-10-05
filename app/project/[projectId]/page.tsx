@@ -10,11 +10,39 @@ import { Response } from "@/components/ai-elements/response";
 import { Loader } from "@/components/ai-elements/loader";
 import { PromptForm } from "@/components/prompt-form";
 import { useChat } from "@ai-sdk/react";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
+import { consumeProjectPrompt } from "@/lib/utils";
 
-export default function ProjectPage({ params }: { params: { projectId: string } }) {
+export default function ProjectPage({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}) {
+  const { projectId } = use(params);
   const [input, setInput] = useState("");
-  const { messages, sendMessage, status } = useChat({});
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const { messages, sendMessage, status } = useChat();
+
+  // Handle initial prompt from localStorage
+  useEffect(() => {
+    if (!hasInitialized) {
+      const initialPrompt = consumeProjectPrompt(projectId);
+
+      if (initialPrompt) {
+        // Send the initial prompt as the first message
+        sendMessage({
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: initialPrompt,
+            },
+          ],
+        });
+      }
+      setHasInitialized(true);
+    }
+  }, [projectId, hasInitialized, sendMessage]);
 
   const handleSubmit = () => {
     if (!input.trim()) return;
