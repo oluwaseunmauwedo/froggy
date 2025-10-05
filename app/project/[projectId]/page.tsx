@@ -12,7 +12,7 @@ import { PromptForm } from "@/components/prompt-form";
 import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default function ProjectPage({ params }: { params: { projectId: string } }) {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat({});
 

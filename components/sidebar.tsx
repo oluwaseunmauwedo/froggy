@@ -1,23 +1,60 @@
 "use client";
 
 import { useSidebarStore } from "@/store/sidebar-store";
-import { useAuth, UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { PanelLeftIcon, PlusIcon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import type { Project } from "@/lib/db/queries/projects";
+import { useRouter, usePathname } from "next/navigation";
 
 export function Sidebar() {
   const { isOpen, toggle } = useSidebarStore();
   const { user } = useUser();
+  const router = useRouter();
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
 
-  // Mock projects data - replace with real data later
-  const projects = [
-    { id: 1, name: "Project Alpha" },
-    { id: 2, name: "Project Beta" },
-    { id: 3, name: "Project Gamma" },
-  ];
+  // Fetch projects
+  const { data: projects = [], isLoading } = useQuery<Project[]>({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data } = await axios.get("/api/projects");
+      return data;
+    },
+  });
+
+  // Create project mutation
+  const createProjectMutation = useMutation({
+    mutationFn: async () => {
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+      const name = `Untitled ${formattedDate}`;
+
+      const { data } = await axios.post("/api/projects", { name });
+      return data;
+    },
+    onSuccess: (newProject: Project) => {
+      // Update the projects list
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      // Navigate to the new project
+      router.push(`/project/${newProject.id}`);
+    },
+  });
+
+  const handleCreateProject = () => {
+    createProjectMutation.mutate();
+  };
 
   return (
     <aside
@@ -35,14 +72,16 @@ export function Sidebar() {
       >
         {isOpen ? (
           <>
-            <Image
-              src="/froggy-transparent-bg.png"
-              alt="Froggy"
-              width={32}
-              height={32}
-              className="shrink-0"
-            />
-            <h1 className="text-lg font-bold">Froggy</h1>
+            <Link href="/" className="flex items-center gap-3">
+              <Image
+                src="/froggy-transparent-bg.png"
+                alt="Froggy"
+                width={32}
+                height={32}
+                className="shrink-0"
+              />
+              <h1 className="text-lg font-bold">Froggy</h1>
+            </Link>
             <Button
               variant="ghost"
               size="icon"
@@ -74,12 +113,22 @@ export function Sidebar() {
       {/* New Project Button */}
       <div className={cn("p-3 px-2", !isOpen && "flex justify-center")}>
         {isOpen ? (
-          <Button className="w-full justify-start gap-2" variant="ghost">
+          <Button
+            className="w-full justify-center gap-2"
+            variant="outline"
+            onClick={handleCreateProject}
+            disabled={createProjectMutation.isPending}
+          >
             <PlusIcon className="size-4" />
-            New Project
+            {createProjectMutation.isPending ? "Creating..." : "New Project"}
           </Button>
         ) : (
-          <Button size="icon" title="New Project">
+          <Button
+            size="icon"
+            title="New Project"
+            onClick={handleCreateProject}
+            disabled={createProjectMutation.isPending}
+          >
             <PlusIcon className="" />
           </Button>
         )}
@@ -92,17 +141,29 @@ export function Sidebar() {
             <p className="px-4 py-2 text-xs font-medium text-muted-foreground">
               Projects
             </p>
-            {projects.map((project) => (
-              <Link href={`/project/${project.id}`} key={project.id}>
-                <Button
-                  key={project.id}
-                  className="justify-start w-full"
-                  variant="ghost"
-                >
-                  {project.name}
-                </Button>
-              </Link>
-            ))}
+            {isLoading ? (
+              <p className="px-4 py-2 text-sm text-muted-foreground">
+                Loading...
+              </p>
+            ) : projects.length === 0 ? (
+              <p className="px-4 py-2 text-sm text-muted-foreground">
+                No projects yet
+              </p>
+            ) : (
+              projects.map((project) => {
+                const isActive = pathname === `/project/${project.id}`;
+                return (
+                  <Link href={`/project/${project.id}`} key={project.id}>
+                    <Button
+                      className="justify-start w-full"
+                      variant={isActive ? "secondary" : "ghost"}
+                    >
+                      {project.name}
+                    </Button>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       )}
