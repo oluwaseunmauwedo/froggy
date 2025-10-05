@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import { SignInDialog, SignUpDialog } from "@/components/auth-dialogs";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,8 +37,8 @@ export default function RootLayout({
         >
           <header className="flex gap-2 justify-end p-4">
             <SignedOut>
-              <SignInButton />
-              <SignUpButton />
+              <SignInDialog />
+              <SignUpDialog />
             </SignedOut>
             <SignedIn>
               <UserButton />
