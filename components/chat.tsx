@@ -13,6 +13,13 @@ import { useChat } from "@ai-sdk/react";
 import { useEffect, useState } from "react";
 import { consumeProjectPrompt } from "@/lib/utils";
 import { DefaultChatTransport, UIMessage } from "ai";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@/components/ai-elements/tool";
 
 interface ChatProps {
   projectId: string;
@@ -22,8 +29,6 @@ interface ChatProps {
 export function Chat({ projectId, initialMessages }: ChatProps) {
   const [input, setInput] = useState("");
   const [hasInitialized, setHasInitialized] = useState(false);
-
-  console.log("Initial Messages", initialMessages);
 
   const { messages, sendMessage, status } = useChat({
     messages: initialMessages,
@@ -40,6 +45,8 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
       },
     }),
   });
+
+  console.log("Messages", messages);
 
   // Handle initial prompt from localStorage
   useEffect(() => {
@@ -96,6 +103,19 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                             <Response>{part.text}</Response>
                           </MessageContent>
                         </Message>
+                      );
+                    case "tool-createActivity":
+                      return (
+                        <Tool key={`${message.id}-${partIndex}`}>
+                          <ToolHeader type={part.type} state={part.state} />
+                          <ToolContent>
+                            <ToolInput input={part.input} />
+                            <ToolOutput
+                              errorText={part.errorText}
+                              output={part.output}
+                            />
+                          </ToolContent>
+                        </Tool>
                       );
                     default:
                       return null;

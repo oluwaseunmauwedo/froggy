@@ -5,20 +5,22 @@ import { messages } from "../schema";
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
 
-export async function addMessage(
-  data: Omit<NewMessage, "id" | "createdAt">
-): Promise<Message> {
+export async function addMessages(
+  data: Omit<NewMessage, "id" | "createdAt">[]
+): Promise<Message[]> {
   const db = getDb();
 
   const result = await db
     .insert(messages)
-    .values({
-      ...data,
-      createdAt: new Date(),
-    })
+    .values(
+      data.map((item) => ({
+        ...item,
+        createdAt: new Date(),
+      }))
+    )
     .returning();
 
-  return result[0];
+  return result;
 }
 
 export async function getMessagesByProjectId(
