@@ -1,15 +1,19 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { Message } from "@/lib/db/queries/messages";
+import { UIDataTypes, UIMessage, UIMessagePart, UITools } from "ai";
+import { formatISO } from "date-fns";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
  * Utility functions for managing project initial prompts in localStorage
  */
 
-const getProjectPromptKey = (projectId: string) => `froggy-project-${projectId}-initial-prompt`;
+const getProjectPromptKey = (projectId: string) =>
+  `froggy-project-${projectId}-initial-prompt`;
 
 /**
  * Save an initial prompt for a project
@@ -44,4 +48,20 @@ export function consumeProjectPrompt(projectId: string): string | null {
     deleteProjectPrompt(projectId);
   }
   return prompt;
+}
+
+/**
+ * Convert database messages to model messages
+ */
+export function convertDBMessagesToModelMessages(
+  messages: Message[]
+): UIMessage[] {
+  return messages.map((message) => ({
+    id: message.id,
+    role: message.role as UIMessage["role"],
+    parts: message.parts as UIMessagePart<UIDataTypes, UITools>[],
+    metadata: {
+      createdAt: formatISO(message.createdAt),
+    },
+  }));
 }
