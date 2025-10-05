@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PanelLeftIcon, PlusIcon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function Sidebar() {
   const { isOpen, toggle } = useSidebarStore();
@@ -92,13 +93,15 @@ export function Sidebar() {
               Projects
             </p>
             {projects.map((project) => (
-              <Button
-                key={project.id}
-                className="justify-start"
-                variant="ghost"
-              >
-                {project.name}
-              </Button>
+              <Link href={`/project/${project.id}`} key={project.id}>
+                <Button
+                  key={project.id}
+                  className="justify-start w-full"
+                  variant="ghost"
+                >
+                  {project.name}
+                </Button>
+              </Link>
             ))}
           </div>
         </div>
