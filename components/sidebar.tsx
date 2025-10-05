@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import type { Project } from "@/lib/db/queries/projects";
 import { useRouter, usePathname } from "next/navigation";
+import { ProjectListItem } from "@/components/project-list-item";
 
 export function Sidebar() {
   const { isOpen, toggle } = useSidebarStore();
@@ -153,14 +154,11 @@ export function Sidebar() {
               projects.map((project) => {
                 const isActive = pathname === `/project/${project.id}`;
                 return (
-                  <Link href={`/project/${project.id}`} key={project.id}>
-                    <Button
-                      className="justify-start w-full"
-                      variant={isActive ? "secondary" : "ghost"}
-                    >
-                      {project.name}
-                    </Button>
-                  </Link>
+                  <ProjectListItem
+                    key={project.id}
+                    project={project}
+                    isActive={isActive}
+                  />
                 );
               })
             )}
