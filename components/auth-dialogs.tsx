@@ -1,33 +1,63 @@
-"use client"
+"use client";
 
-import { SignIn, SignUp } from "@clerk/nextjs"
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { SignIn, SignUp } from "@clerk/nextjs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useAuthDialogStore } from "@/store/auth-dialog-store";
 
 export function SignInDialog() {
+  const { signInOpen, openSignIn, closeSignIn } = useAuthDialogStore();
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Sign In</Button>
-      </DialogTrigger>
-      <DialogContent showCloseButton={false} className="p-0 border-0 bg-transparent shadow-none max-w-fit">
-        <DialogTitle className="sr-only">Sign In</DialogTitle>
-        <SignIn routing="virtual" />
-      </DialogContent>
-    </Dialog>
-  )
+    <>
+      <Button variant="outline" onClick={openSignIn}>
+        Sign In
+      </Button>
+      <Dialog open={signInOpen} onOpenChange={(open) => !open && closeSignIn()}>
+        <DialogContent
+          showCloseButton={false}
+          className="p-0 border-0 bg-transparent shadow-none w-fit max-w-fit focus:outline-none"
+        >
+          <DialogHeader>
+            <DialogTitle className="sr-only">Sign In</DialogTitle>
+            <DialogDescription className="sr-only">Sign In</DialogDescription>
+          </DialogHeader>
+          <SignIn routing="virtual" />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
 export function SignUpDialog() {
+  const { signUpOpen, openSignUp, closeSignUp } = useAuthDialogStore();
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Sign Up</Button>
-      </DialogTrigger>
-      <DialogContent showCloseButton={false} className="p-0 border-0 bg-transparent shadow-none max-w-fit">
-        <DialogTitle className="sr-only">Sign Up</DialogTitle>
-        <SignUp routing="virtual" />
-      </DialogContent>
-    </Dialog>
-  )
+    <>
+      <Button onClick={openSignUp}>Sign Up</Button>
+      <Dialog open={signUpOpen} onOpenChange={(open) => !open && closeSignUp()}>
+        <DialogHeader>
+          <DialogTitle className="sr-only">Sign Up</DialogTitle>
+          <DialogDescription className="sr-only">Sign Up</DialogDescription>
+        </DialogHeader>
+        <DialogContent
+          showCloseButton={false}
+          className="p-0 border-0 bg-transparent shadow-none w-fit max-w-fit focus:outline-none"
+        >
+          <DialogHeader>
+            <DialogTitle className="sr-only">Sign Up</DialogTitle>
+            <DialogDescription className="sr-only">Sign Up</DialogDescription>
+          </DialogHeader>
+          <SignUp routing="virtual" />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
