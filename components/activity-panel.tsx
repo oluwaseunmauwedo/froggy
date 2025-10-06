@@ -17,9 +17,9 @@ export function ActivityPanel({
   onClose,
 }: ActivityPanelProps) {
   return (
-    <div className="h-full bg-background border-l flex flex-col">
+    <div className="h-full bg-background flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between py-1 px-2">
         <h2 className="font-semibold text-lg">{name}</h2>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -29,14 +29,9 @@ export function ActivityPanel({
       {/* Content */}
       <div className="flex-1 overflow-auto">
         {isStreaming ? (
-          <div className="p-4">
-            <div className="text-sm text-muted-foreground mb-2">
-              Code is streaming...
-            </div>
-            <pre className="text-xs bg-muted p-4 rounded overflow-auto whitespace-pre-wrap">
-              {code}
-            </pre>
-          </div>
+          <pre className="text-xs py-2 px-3 overflow-auto whitespace-pre-wrap">
+            {code}
+          </pre>
         ) : (
           <iframe
             srcDoc={code}

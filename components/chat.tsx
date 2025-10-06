@@ -62,7 +62,8 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     }),
   });
 
-  // console.log("Messages", messages);
+  console.log("Messages", messages);
+  console.log("Status", status);
 
   // Get activity by ID (messageIndex-partIndex)
   const getActivity = (activityId: string): ActivityData | null => {

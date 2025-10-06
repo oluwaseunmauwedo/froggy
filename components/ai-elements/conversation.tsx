@@ -11,7 +11,11 @@ export type ConversationProps = ComponentProps<typeof StickToBottom>;
 
 export const Conversation = ({ className, ...props }: ConversationProps) => (
   <StickToBottom
-    className={cn("relative flex-1 overflow-y-auto", className)}
+    className={cn("relative flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent", className)}
+    style={{
+      scrollbarWidth: 'thin',
+      scrollbarColor: 'rgb(156 163 175) transparent'
+    }}
     initial="smooth"
     resize="smooth"
     role="log"

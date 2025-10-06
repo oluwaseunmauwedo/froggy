@@ -56,10 +56,11 @@ export async function POST(req: Request) {
         model: anthropic("claude-sonnet-4-5-20250929"),
         system: SYSTEM_PROMPT,
         messages: convertToModelMessages([...messages, message]),
-        // experimental_transform: smoothStream({ chunking: "word" }),
+        experimental_transform: smoothStream({ chunking: "word" }),
         tools: {
           createActivity,
         },
+        maxOutputTokens: 64000,
       });
 
       result.consumeStream();
