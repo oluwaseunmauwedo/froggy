@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { X, Globe, Loader2 } from "lucide-react";
+import { X, Globe, Loader2, Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -33,6 +34,11 @@ export function ActivityPanel({
   const [isPublished, setIsPublished] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const activityUrl = activityId
+    ? `${window.location.origin}/activity/${activityId}/play`
+    : null;
 
   // Fetch activity status when activityId changes
   useEffect(() => {
@@ -81,6 +87,14 @@ export function ActivityPanel({
       console.error("Failed to unpublish activity:", error);
     } finally {
       setIsUnpublishing(false);
+    }
+  };
+
+  const handleCopyUrl = () => {
+    if (activityUrl) {
+      navigator.clipboard.writeText(activityUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -142,6 +156,16 @@ export function ActivityPanel({
                 This activity is published and accessible to anyone with the
                 link.
               </p>
+              <div className="flex gap-2">
+                <Input value={activityUrl || ""} readOnly />
+                <Button variant="outline" size="icon" onClick={handleCopyUrl}>
+                  {copied ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
               <Button
                 variant="destructive"
                 className="w-full"
@@ -150,7 +174,7 @@ export function ActivityPanel({
               >
                 {isUnpublishing ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Unpublishing...
                   </>
                 ) : (
