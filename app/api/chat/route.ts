@@ -53,22 +53,13 @@ export async function POST(req: Request) {
   const stream = createUIMessageStream({
     execute: ({ writer: dataStream }) => {
       const result = streamText({
-        model: anthropic("claude-3-5-sonnet-20240620"),
+        model: anthropic("claude-sonnet-4-5-20250929"),
         system: SYSTEM_PROMPT,
         messages: convertToModelMessages([...messages, message]),
-        experimental_transform: smoothStream({ chunking: "word" }),
+        // experimental_transform: smoothStream({ chunking: "word" }),
         tools: {
-          createActivity: createActivity(projectId),
+          createActivity,
         },
-        // onFinish: async (args) => {
-        //   // Add the assistant message to the database
-        //   await addMessage({
-        //     projectId,
-        //     role: "assistant",
-        //     parts: args.content,
-        //     attachments: [],
-        //   });
-        // },
       });
 
       result.consumeStream();
@@ -80,7 +71,6 @@ export async function POST(req: Request) {
       );
     },
     onFinish: async ({ messages }) => {
-      console.log(JSON.stringify(messages, null, 2));
       await addMessages(
         messages.map((message) => ({
           projectId,

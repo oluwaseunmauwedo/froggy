@@ -1,10 +1,10 @@
 "use client";
 
 import { use } from "react";
-import { UIMessage } from "ai";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Chat } from "@/components/chat";
+import { ChatMessage } from "@/lib/types";
 
 export default function ProjectPage({
   params,
@@ -13,7 +13,7 @@ export default function ProjectPage({
 }) {
   const { projectId } = use(params);
 
-  const { data: initialMessages, isLoading } = useQuery<UIMessage[]>({
+  const { data: initialMessages, isLoading } = useQuery<ChatMessage[]>({
     queryKey: ["messages", projectId],
     queryFn: async () => {
       const { data } = await axios.get(`/api/projects/${projectId}/messages`);
