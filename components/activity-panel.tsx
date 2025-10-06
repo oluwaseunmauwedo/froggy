@@ -7,6 +7,8 @@ interface ActivityPanelProps {
   name: string;
   code: string;
   isStreaming: boolean;
+  projectId: string;
+  activityId: string | null;
   onClose: () => void;
 }
 
@@ -14,12 +16,22 @@ export function ActivityPanel({
   name,
   code,
   isStreaming,
+  projectId,
+  activityId,
   onClose,
 }: ActivityPanelProps) {
+  console.log("ActivityPanel", {
+    name,
+    code,
+    isStreaming,
+    projectId,
+    activityId,
+  });
+
   return (
     <div className="h-full bg-background flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between py-1 px-2">
+      <div className="flex items-center justify-between py-1 px-2 border-b">
         <h2 className="font-semibold text-lg">{name}</h2>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />

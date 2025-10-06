@@ -8,7 +8,7 @@ export const messageMetadataSchema = z.object({
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
-type createActivityTool = InferUITool<typeof createActivity>;
+type createActivityTool = InferUITool<ReturnType<typeof createActivity>>;
 
 export type ChatTools = {
   createActivity: createActivityTool;

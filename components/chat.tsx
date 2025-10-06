@@ -12,14 +12,7 @@ import { PromptForm } from "@/components/prompt-form";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useState } from "react";
 import { consumeProjectPrompt } from "@/lib/utils";
-import { DefaultChatTransport, UIMessage } from "ai";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "@/components/ai-elements/tool";
+import { DefaultChatTransport } from "ai";
 import { ActivityCard } from "@/components/activity-card";
 import { ActivityPanel } from "@/components/activity-panel";
 import {
@@ -39,6 +32,7 @@ interface ActivityData {
   partIndex: number;
   name: string;
   code: string;
+  activityId: string | null;
 }
 
 export function Chat({ projectId, initialMessages }: ChatProps) {
@@ -74,11 +68,18 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     const part = message.parts[partIndex];
     if (part?.type !== "tool-createActivity") return null;
 
+    // Extract activityId from output
+    const dbActivityId =
+      part.output?.success && part.output?.content?.activityId
+        ? part.output.content.activityId
+        : null;
+
     return {
       messageIndex,
       partIndex,
       name: part.input?.name || "Untitled Activity",
       code: part.input?.code || "",
+      activityId: dbActivityId,
     };
   };
 
@@ -193,6 +194,8 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
               name={openActivity.name}
               code={openActivity.code}
               isStreaming={isActivityStreaming}
+              projectId={projectId}
+              activityId={openActivity.activityId}
               onClose={() => setOpenActivityId(null)}
             />
           </ResizablePanel>

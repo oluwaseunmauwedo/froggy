@@ -58,7 +58,7 @@ export async function POST(req: Request) {
         messages: convertToModelMessages([...messages, message]),
         experimental_transform: smoothStream({ chunking: "word" }),
         tools: {
-          createActivity,
+          createActivity: createActivity(projectId),
         },
         maxOutputTokens: 64000,
       });
