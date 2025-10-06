@@ -1,7 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Globe, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 interface ActivityPanelProps {
   name: string;
@@ -20,39 +29,155 @@ export function ActivityPanel({
   activityId,
   onClose,
 }: ActivityPanelProps) {
-  console.log("ActivityPanel", {
-    name,
-    code,
-    isStreaming,
-    projectId,
-    activityId,
-  });
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
+
+  // Fetch activity status when activityId changes
+  useEffect(() => {
+    if (activityId) {
+      fetchActivityStatus();
+    }
+  }, [activityId]);
+
+  const fetchActivityStatus = async () => {
+    if (!activityId) return;
+    try {
+      const response = await axios.get(`/api/activities/${activityId}`);
+      setIsPublished(response.data.activity.isPublished);
+    } catch (error) {
+      console.error("Failed to fetch activity status:", error);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!activityId) return;
+
+    setIsPublishing(true);
+    try {
+      await axios.patch(`/api/activities/${activityId}`, {
+        isPublished: true,
+      });
+      setIsPublished(true);
+    } catch (error) {
+      console.error("Failed to publish activity:", error);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleUnpublish = async () => {
+    if (!activityId) return;
+
+    setIsUnpublishing(true);
+    try {
+      await axios.patch(`/api/activities/${activityId}`, {
+        isPublished: false,
+      });
+      setIsPublished(false);
+      setPublishDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to unpublish activity:", error);
+    } finally {
+      setIsUnpublishing(false);
+    }
+  };
 
   return (
-    <div className="h-full bg-background flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between py-1 px-2 border-b">
-        <h2 className="font-semibold text-lg">{name}</h2>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+    <>
+      <div className="h-full bg-background flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between py-1 px-2 border-b">
+          <h2 className="font-semibold text-lg">{name}</h2>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isPublished ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setPublishDialogOpen(true)}
+              disabled={isStreaming || !activityId}
+            >
+              <Globe className="h-4 w-4" />
+              {isPublished ? "Published" : "Publish"}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto">
+          {isStreaming ? (
+            <pre className="text-xs py-2 px-3 overflow-auto whitespace-pre-wrap">
+              {code}
+            </pre>
+          ) : (
+            <iframe
+              srcDoc={code}
+              className="w-full h-full"
+              sandbox="allow-scripts allow-same-origin"
+              title={name}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto">
-        {isStreaming ? (
-          <pre className="text-xs py-2 px-3 overflow-auto whitespace-pre-wrap">
-            {code}
-          </pre>
-        ) : (
-          <iframe
-            srcDoc={code}
-            className="w-full h-full"
-            sandbox="allow-scripts allow-same-origin"
-            title={name}
-          />
-        )}
-      </div>
-    </div>
+      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isPublished ? "Activity Published" : "Publish Activity"}
+            </DialogTitle>
+            <DialogDescription>
+              {isPublished
+                ? "Your activity is currently published"
+                : "Make this activity publicly accessible"}
+            </DialogDescription>
+          </DialogHeader>
+
+          {isPublished ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                This activity is published and accessible to anyone with the
+                link.
+              </p>
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={handleUnpublish}
+                disabled={isUnpublishing}
+              >
+                {isUnpublishing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Unpublishing...
+                  </>
+                ) : (
+                  "Unpublish Activity"
+                )}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Button
+                className="w-full"
+                onClick={handlePublish}
+                disabled={isPublishing}
+              >
+                {isPublishing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  "Publish Activity"
+                )}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
