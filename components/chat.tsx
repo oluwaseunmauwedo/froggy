@@ -17,6 +17,7 @@ import { ActivityCard } from "@/components/activity-card";
 import { ActivityPanel } from "@/components/activity-panel";
 import { AnalyticsCard } from "@/components/analytics-card";
 import { AnalyticsPanel } from "@/components/analytics-panel";
+import { QueryEventsCard } from "@/components/query-events-card";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -270,19 +271,14 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
 
                         case "tool-queryEvents":
                           return (
-                            <Tool>
-                              <ToolHeader
-                                type="tool-queryEvents"
-                                state={part.state}
-                              />
-                              <ToolContent>
-                                <ToolInput input={part.input} />
-                                <ToolOutput
-                                  errorText={part.errorText}
-                                  output={part.output}
-                                />
-                              </ToolContent>
-                            </Tool>
+                            <QueryEventsCard
+                              key={`${message.id}-${partIndex}`}
+                              activityId={part.input?.activityId}
+                              sqlQuery={part.input?.sqlQuery}
+                              results={part.output?.content?.results}
+                              isStreaming={part.state !== "output-available"}
+                              state={part.state}
+                            />
                           );
                         default:
                           return null;

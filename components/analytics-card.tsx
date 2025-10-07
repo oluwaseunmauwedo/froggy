@@ -16,14 +16,14 @@ export function AnalyticsCard({
 }: AnalyticsCardProps) {
   return (
     <Card
-      className={`w-fit px-4 py-4 cursor-pointer hover:bg-accent/50 transition-all duration-300 shadow-none border-[0.5px] ${
-        isStreaming ? "border-primary/30" : ""
+      className={`p-4 cursor-pointer hover:bg-purple-500/5 transition-all duration-300 shadow-none border-[0.5px] ${
+        isStreaming ? "border-purple-500/30" : ""
       }`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <BarChart3 className="h-5 w-5 text-primary" />
+        <div className="p-2 rounded-lg bg-purple-500/10">
+          <BarChart3 className="h-5 w-5 text-purple-500" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-medium text-sm leading-tight line-clamp-1">

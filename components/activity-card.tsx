@@ -16,7 +16,9 @@ export function ActivityCard({
 }: ActivityCardProps) {
   return (
     <Card
-      className={`w-fit p-4 cursor-pointer hover:bg-accent/50 transition-all duration-300 shadow-none border-[0.5px]}`}
+      className={`p-4 cursor-pointer hover:bg-primary/5 transition-all duration-300 shadow-none border-[0.5px] ${
+        isStreaming ? "border-primary/30" : ""
+      }`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
