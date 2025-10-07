@@ -6,10 +6,12 @@ import {
   createUIMessageStream,
   JsonToSseTransformStream,
   smoothStream,
+  stepCountIs,
   streamText,
   UIMessage,
 } from "ai";
 import { createActivity } from "./tools/create-activity";
+import { queryEvents } from "./tools/query-events";
 import { getProjectById } from "@/lib/db/queries/projects";
 import { auth } from "@clerk/nextjs/server";
 import { SYSTEM_PROMPT } from "./prompts";
@@ -59,8 +61,10 @@ export async function POST(req: Request) {
         experimental_transform: smoothStream({ chunking: "word" }),
         tools: {
           createActivity: createActivity(projectId),
+          queryEvents: queryEvents(projectId),
         },
         maxOutputTokens: 64000,
+        stopWhen: stepCountIs(20),
       });
 
       result.consumeStream();

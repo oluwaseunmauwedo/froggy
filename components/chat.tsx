@@ -21,6 +21,13 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import { ChatMessage } from "@/lib/types";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@/components/ai-elements/tool";
 
 interface ChatProps {
   projectId: string;
@@ -56,7 +63,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     }),
   });
 
-  console.log("Messages", messages);
+  // console.log("Messages", messages);
   console.log("Status", status);
 
   // Get activity by ID (messageIndex-partIndex)
@@ -174,6 +181,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                               </MessageContent>
                             </Message>
                           );
+
                         case "tool-createActivity":
                           const activityId = `${messageIndex}-${partIndex}`;
                           const activityName =
@@ -189,6 +197,23 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                               isStreaming={isActivityStreaming}
                               onClick={() => setOpenActivityId(activityId)}
                             />
+                          );
+
+                        case "tool-queryEvents":
+                          return (
+                            <Tool>
+                              <ToolHeader
+                                type="tool-queryEvents"
+                                state={part.state}
+                              />
+                              <ToolContent>
+                                <ToolInput input={part.input} />
+                                <ToolOutput
+                                  errorText={part.errorText}
+                                  output={part.output}
+                                />
+                              </ToolContent>
+                            </Tool>
                           );
                         default:
                           return null;
