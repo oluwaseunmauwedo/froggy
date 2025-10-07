@@ -71,4 +71,175 @@ Ask follow-up questions if you don't have sufficient information to create the a
 - Keyboard navigation support
 - Sufficient color contrast (WCAG AA minimum)
 
+## Event Tracking for Analytics
+
+### Purpose
+Track detailed user interactions to analyze learning patterns, identify where students struggle, hesitate, and succeed. This data enables educators to understand student behavior and improve activities.
+
+### Available Function
+A \`trackEvent\` function is automatically injected into every activity:
+
+\\\`\\\`\\\`javascript
+async function trackEvent(event, data = {})
+\\\`\\\`\\\`
+
+### Design Events Based on Desired Analytics
+**CRITICAL**: When the user describes what they want to analyze or track, design event tracking specifically to enable that analysis. Think about:
+- What data points are needed to answer their analytical questions?
+- What events would reveal struggles, patterns, or learning progress?
+- How can timing data show hesitation or confidence?
+- What context is needed to understand student behavior?
+
+### Track Both Process AND Outcome Data
+**IMPORTANT**: Always track BOTH types of data:
+
+1. **Outcome Data (Traditional Analytics)** - Track final results like typical quiz/assessment systems:
+   - Correct/incorrect answers
+   - Final scores and grades
+   - Completion status
+   - Questions answered vs skipped
+   - Time to complete overall activity
+   - Success/failure on each question/task
+
+2. **Process Data (Learning Analytics)** - Track HOW students arrived at answers:
+   - Interaction patterns and hesitations
+   - Multiple attempts before getting correct answer
+   - Time spent per question/task
+   - Sequence of actions taken
+   - Wrong answers tried before correct one
+
+The goal is process-oriented learning, but that requires tracking BOTH what students achieved AND how they got there.
+
+### What to Track
+**IMPORTANT**: Implement comprehensive event tracking in every activity to capture:
+
+1. **User Actions**
+   - Clicks: Track what element was clicked
+   - Drags: Track start position, end position, and item being dragged
+   - Selections: Track what was selected and what it was matched with
+   - Input: Track text entries, multiple choice selections
+   - Navigation: Track page/level changes
+
+2. **Timing Data**
+   - Time spent on each question/task
+   - Time between interactions (hesitation)
+   - Total time on activity
+   - Timestamp of each event
+
+3. **Context Data**
+   - Current state of the activity
+   - Correct vs incorrect attempts
+   - Which items are being interacted with
+   - Score/progress at time of event
+
+### Example: Alphabet Matching Game
+
+\\\`\\\`\\\`javascript
+// Track when user picks up a letter card
+trackEvent('card_picked', {
+  userName: userName, // REQUIRED in every event
+  letter: 'A',
+  timestamp: Date.now()
+});
+
+// Track when user hovers over an image
+trackEvent('card_hover', {
+  userName: userName, // REQUIRED in every event
+  letter: 'A',
+  targetImage: 'apple',
+  hoverDuration: 1200 // milliseconds
+});
+
+// Track when user drops the card
+trackEvent('card_dropped', {
+  userName: userName, // REQUIRED in every event
+  letter: 'A',
+  targetImage: 'apple',
+  isCorrect: true,
+  attemptNumber: 1,
+  timeSincePickup: 3400 // milliseconds
+});
+
+// Track hesitation (hovering without dropping)
+trackEvent('hesitation', {
+  userName: userName, // REQUIRED in every event
+  letter: 'A',
+  possibleTargets: ['apple', 'ant'],
+  hoverTime: 5000 // milliseconds
+});
+\\\`\\\`\\\`
+
+### Implementation Guidelines
+- **CRITICAL: ALWAYS include \`userName\` in every event's data object** to identify which student performed the action
+- **REQUIRED: Track session start and end**:
+  - Track 'activity_started' immediately after user enters their name
+  - Track 'activity_completed' when user finishes the activity successfully
+  - Track 'activity_closed' when user closes/leaves the activity (use beforeunload event)
+- **Tailor events to user's analytical needs**: If they want to track "which questions students get wrong most", ensure you track question IDs, correctness, and attempt counts
+- **Enable the desired insights**: Think backwards from the analysis they want to what events/data would make it possible
+- Track events at key interaction points
+- Include enough data to reconstruct user behavior
+- Don't track too frequently (avoid tracking every mouse movement)
+- Use descriptive event names (e.g., 'question_answered' not 'click')
+- Include identifiers for all interactive elements
+- Store timing data to measure hesitation and struggle
+
+### Required Session Tracking
+
+\\\`\\\`\\\`javascript
+// REQUIRED: Track when user starts activity (after entering name)
+trackEvent('activity_started', {
+  userName: userName,
+  timestamp: Date.now()
+});
+
+// REQUIRED: Track when user completes activity
+trackEvent('activity_completed', {
+  userName: userName,
+  finalScore: 85,
+  totalQuestions: 10,
+  timestamp: Date.now()
+});
+
+// REQUIRED: Track when user closes/leaves activity
+window.addEventListener('beforeunload', () => {
+  trackEvent('activity_closed', {
+    userName: userName,
+    timestamp: Date.now()
+  });
+});
+\\\`\\\`\\\`
+
+### Example: Customizing Events for Specific Analytics
+
+If user wants to analyze: **"Which spelling words do students struggle with most?"**
+Track events like:
+\\\`\\\`\\\`javascript
+trackEvent('word_attempt', {
+  userName: userName,
+  word: 'beautiful',
+  attempt: 'beatiful', // what they typed
+  isCorrect: false,
+  attemptNumber: 2,
+  timeSpent: 8500
+});
+\\\`\\\`\\\`
+
+If user wants to analyze: **"Do students rush through questions or take their time?"**
+Track events like:
+\\\`\\\`\\\`javascript
+trackEvent('question_started', {
+  userName: userName,
+  questionId: 'q1',
+  timestamp: Date.now()
+});
+
+trackEvent('question_answered', {
+  userName: userName,
+  questionId: 'q1',
+  timeSpent: 45000, // 45 seconds
+  isCorrect: true
+});
+\\\`\\\`\\\`
+
 `;
