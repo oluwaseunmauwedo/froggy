@@ -135,29 +135,36 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
       <ResizablePanel defaultSize={openActivity ? 50 : 100} minSize={30}>
         <div className="flex flex-col h-full">
           <Conversation className="flex-1">
-            <ConversationContent className={openActivity ? "" : "max-w-2xl mx-auto"}>
+            <ConversationContent
+              className={
+                openActivity ? "" : "max-w-2xl mx-auto flex flex-col gap-4"
+              }
+            >
               {messages.map((message, messageIndex) => {
                 return (
-                  <div key={message.id}>
+                  <div key={message.id} className="flex flex-col gap-2">
                     {message.parts.map((part, partIndex) => {
                       switch (part.type) {
                         case "text":
                           return (
-                            <Message
+                            <div
                               key={`${message.id}-${partIndex}`}
-                              from={message.role}
+                              className={
+                                message.role === "user"
+                                  ? "self-end bg-accent text-accent-foreground p-2 px-3 rounded-md w-fit"
+                                  : ""
+                              }
                             >
-                              <MessageContent>
-                                <Response>{part.text}</Response>
-                              </MessageContent>
-                            </Message>
+                              <Response>{part.text}</Response>
+                            </div>
                           );
                         case "tool-createActivity":
                           const activityId = `${messageIndex}-${partIndex}`;
                           const activityName =
                             part.input?.name || "Creating activity...";
                           const isActivityStreaming =
-                            !part.input?.code || part.state !== "output-available";
+                            !part.input?.code ||
+                            part.state !== "output-available";
 
                           return (
                             <ActivityCard
@@ -179,7 +186,9 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
             <ConversationScrollButton />
           </Conversation>
 
-          <div className={`p-4 ${openActivity ? "" : "max-w-2xl mx-auto w-full"}`}>
+          <div
+            className={`p-4 ${openActivity ? "" : "max-w-2xl mx-auto w-full"}`}
+          >
             <PromptForm
               value={input}
               onChange={setInput}
