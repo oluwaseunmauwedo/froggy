@@ -10,6 +10,11 @@ export const queryEvents = (projectId: string) =>
       activityId: z
         .string()
         .describe("The ID of the activity to query events for"),
+      description: z
+        .string()
+        .describe(
+          "A short, user-friendly description of what this query is analyzing (e.g., 'Student completion rates', 'Average time spent per question')"
+        ),
       sqlQuery: z
         .string()
         .describe(

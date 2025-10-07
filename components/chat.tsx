@@ -274,6 +274,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                             <QueryEventsCard
                               key={`${message.id}-${partIndex}`}
                               activityId={part.input?.activityId}
+                              description={part.input?.description}
                               sqlQuery={part.input?.sqlQuery}
                               results={part.output?.content?.results}
                               isStreaming={part.state !== "output-available"}

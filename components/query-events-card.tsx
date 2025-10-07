@@ -6,6 +6,7 @@ import { useState } from "react";
 
 interface QueryEventsCardProps {
   activityId?: string;
+  description?: string;
   sqlQuery?: string;
   results?: any[];
   isStreaming: boolean;
@@ -14,6 +15,7 @@ interface QueryEventsCardProps {
 
 export function QueryEventsCard({
   activityId,
+  description,
   sqlQuery,
   results,
   isStreaming,
@@ -36,7 +38,9 @@ export function QueryEventsCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-medium text-sm">
-              {isStreaming ? "Querying database..." : "Database Query"}
+              {isStreaming
+                ? "Querying database..."
+                : description || "Database Query"}
             </h3>
             {isExpanded ? (
               <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
