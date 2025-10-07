@@ -131,7 +131,7 @@ export function ActivityPanel({
     <>
       <div className="h-full bg-background flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between py-1 px-3 border-b">
+        <div className="flex items-center justify-between py-2 px-3 border-b">
           <h2 className="font-semibold text-lg">{name}</h2>
           <div className="flex items-center gap-2">
             {activityId && !isStreaming && (
@@ -158,9 +158,7 @@ export function ActivityPanel({
           onScroll={handleScroll}
         >
           {isStreaming ? (
-            <pre className="text-xs py-2 px-3 whitespace-pre-wrap">
-              {code}
-            </pre>
+            <pre className="text-xs py-2 px-3 whitespace-pre-wrap">{code}</pre>
           ) : activityId ? (
             <iframe
               src={activityUrl || ""}

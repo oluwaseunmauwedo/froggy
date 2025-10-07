@@ -42,13 +42,8 @@ export async function queryActivityEvents(
     throw new Error('Query must reference the activityEvents table');
   }
 
-  // Ensure table name is properly quoted for case-sensitive Postgres
-  // Replace unquoted activityEvents with quoted "activityEvents"
-  let safeSqlQuery = sqlQuery.replace(/\bactivityEvents\b/g, '"activityEvents"');
-
-  // Replace column names with quoted versions for case sensitivity
-  safeSqlQuery = safeSqlQuery.replace(/\bactivityId\b/g, '"activityId"');
-  safeSqlQuery = safeSqlQuery.replace(/\bcreatedAt\b/g, '"createdAt"');
+  // Replace the activityId placeholder with the actual value
+  const safeSqlQuery = sqlQuery.replace(/\$ACTIVITY_ID/g, activityId);
 
   // Execute the raw SQL query using sql template
   const results = await db.execute(sql.raw(safeSqlQuery));

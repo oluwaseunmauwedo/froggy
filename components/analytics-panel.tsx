@@ -19,7 +19,7 @@ export function AnalyticsPanel({
   return (
     <div className="h-full bg-background flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between py-1 px-3 border-b">
+      <div className="flex items-center justify-between py-2 px-3 border-b">
         <h2 className="font-semibold text-lg">{name}</h2>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={onClose}>

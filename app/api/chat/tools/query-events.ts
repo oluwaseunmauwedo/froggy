@@ -18,7 +18,7 @@ export const queryEvents = (projectId: string) =>
       sqlQuery: z
         .string()
         .describe(
-          "SQL query to run against the activityEvents table. The table has columns: id, activityId, event, data (jsonb), createdAt. Use SQL to filter, aggregate, and analyze events. Example: SELECT event, COUNT(*) as count FROM activityEvents WHERE activityId = $1 GROUP BY event"
+          "SQL query to run against the activityEvents table. Use $ACTIVITY_ID placeholder for the activity ID. Table columns: id, activityId, event, data (jsonb), createdAt. Example: SELECT data->>'userName' as student, event, \"createdAt\" FROM \"activityEvents\" WHERE \"activityId\" = '$ACTIVITY_ID' ORDER BY \"createdAt\" ASC"
         ),
     }),
     execute: async ({ activityId, sqlQuery }) => {

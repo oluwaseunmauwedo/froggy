@@ -18,6 +18,7 @@ import { ActivityPanel } from "@/components/activity-panel";
 import { AnalyticsCard } from "@/components/analytics-card";
 import { AnalyticsPanel } from "@/components/analytics-panel";
 import { QueryEventsCard } from "@/components/query-events-card";
+import { EmptyChat } from "@/components/empty-chat";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -185,15 +186,16 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
   //   }
   // }, [messages]);
 
-  const handleSubmit = () => {
-    if (!input.trim()) return;
+  const handleSubmit = (prompt?: string) => {
+    const textToSend = prompt || input;
+    if (!textToSend.trim()) return;
 
     sendMessage({
       role: "user",
       parts: [
         {
           type: "text",
-          text: input,
+          text: textToSend,
         },
       ],
     });
@@ -206,11 +208,14 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     <ResizablePanelGroup direction="horizontal" className="h-full">
       <ResizablePanel defaultSize={hasOpenPanel ? 50 : 100} minSize={30}>
         <div className="flex flex-col h-full">
-          <Conversation className="flex-1">
-            <ConversationContent
-              className={`${hasOpenPanel ? "" : "max-w-2xl mx-auto "}`}
-            >
-              {messages.map((message, messageIndex) => {
+          {messages.length === 0 ? (
+            <EmptyChat onPromptClick={handleSubmit} />
+          ) : (
+            <Conversation className="flex-1">
+              <ConversationContent
+                className={`${hasOpenPanel ? "" : "max-w-2xl mx-auto "}`}
+              >
+                {messages.map((message, messageIndex) => {
                 return (
                   <div key={message.id} className="">
                     {message.parts.map((part, partIndex) => {
@@ -287,11 +292,12 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                     })}
                   </div>
                 );
-              })}
-              {status === "submitted" && <Loader />}
-            </ConversationContent>
-            <ConversationScrollButton />
-          </Conversation>
+                })}
+                {status === "submitted" && <Loader />}
+              </ConversationContent>
+              <ConversationScrollButton />
+            </Conversation>
+          )}
 
           <div
             className={`p-4 ${hasOpenPanel ? "" : "max-w-2xl mx-auto w-full"}`}

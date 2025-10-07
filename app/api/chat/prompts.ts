@@ -260,6 +260,45 @@ Generate HTML-based analytics dashboards for educators to visualize and understa
 3. **Generate insights** from the data - identify patterns, struggles, successes
 4. **Create visualization** using \`createAnalytics\` tool with embedded charts and insights
 
+### SQL Query Guidelines for queryEvents Tool
+**CRITICAL**: PostgreSQL is case-sensitive. Follow these rules EXACTLY:
+
+1. **Always use double quotes for case-sensitive identifiers**:
+   - Table name: \`"activityEvents"\` (NOT \`activityEvents\`)
+   - Column names: \`"activityId"\`, \`"createdAt"\` (NOT \`activityId\`, \`createdAt\`)
+
+2. **Use $ACTIVITY_ID placeholder** for the activity ID:
+   - Always filter by activity: \`WHERE "activityId" = '$ACTIVITY_ID'\`
+   - The placeholder will be replaced with the actual activity ID
+
+3. **Access JSONB data** using the \`->>'\` operator:
+   - \`data->>'userName'\` to extract userName as text
+   - \`data->>'questionId'\` to extract questionId
+   - \`data->>'isCorrect'\` to extract boolean values as text ('true'/'false')
+
+4. **Example correct queries**:
+   \`\`\`sql
+   SELECT data->>'userName' as student_name,
+          event,
+          "createdAt"
+   FROM "activityEvents"
+   WHERE "activityId" = '$ACTIVITY_ID'
+   ORDER BY "createdAt" ASC
+   \`\`\`
+
+   \`\`\`sql
+   SELECT event,
+          COUNT(*) as count
+   FROM "activityEvents"
+   WHERE "activityId" = '$ACTIVITY_ID'
+   GROUP BY event
+   \`\`\`
+
+5. **Common mistakes to avoid**:
+   - ❌ \`FROM activityEvents\` → ✅ \`FROM "activityEvents"\`
+   - ❌ \`WHERE activityId = '...'\` → ✅ \`WHERE "activityId" = '$ACTIVITY_ID'\`
+   - ❌ \`ORDER BY createdAt\` → ✅ \`ORDER BY "createdAt"\`
+
 ### Analytics Dashboard Requirements
 **IMPORTANT**: Analytics are for EDUCATORS ONLY, not students. No student-facing features needed.
 
@@ -293,7 +332,7 @@ User: "Show me analytics for which questions students struggle with most"
           COUNT(*) FILTER (WHERE data->>'isCorrect' = 'false') as wrong_count,
           COUNT(*) as total_attempts
    FROM "activityEvents"
-   WHERE "activityId" = $1 AND event = 'question_answered'
+   WHERE "activityId" = '$ACTIVITY_ID' AND event = 'question_answered'
    GROUP BY data->>'questionId'
    ORDER BY wrong_count DESC
 
