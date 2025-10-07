@@ -135,7 +135,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
       <ResizablePanel defaultSize={openActivity ? 50 : 100} minSize={30}>
         <div className="flex flex-col h-full">
           <Conversation className="flex-1">
-            <ConversationContent>
+            <ConversationContent className={openActivity ? "" : "max-w-2xl mx-auto"}>
               {messages.map((message, messageIndex) => {
                 return (
                   <div key={message.id}>
@@ -156,11 +156,14 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                           const activityId = `${messageIndex}-${partIndex}`;
                           const activityName =
                             part.input?.name || "Creating activity...";
+                          const isActivityStreaming =
+                            !part.input?.code || part.state !== "output-available";
 
                           return (
                             <ActivityCard
                               key={`${message.id}-${partIndex}`}
                               name={activityName}
+                              isStreaming={isActivityStreaming}
                               onClick={() => setOpenActivityId(activityId)}
                             />
                           );
@@ -176,7 +179,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
             <ConversationScrollButton />
           </Conversation>
 
-          <div className="p-4">
+          <div className={`p-4 ${openActivity ? "" : "max-w-2xl mx-auto w-full"}`}>
             <PromptForm
               value={input}
               onChange={setInput}

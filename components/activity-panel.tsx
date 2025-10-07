@@ -105,15 +105,17 @@ export function ActivityPanel({
         <div className="flex items-center justify-between py-1 px-2 border-b">
           <h2 className="font-semibold text-lg">{name}</h2>
           <div className="flex items-center gap-2">
-            <Button
-              variant={isPublished ? "secondary" : "outline"}
-              size="sm"
-              onClick={() => setPublishDialogOpen(true)}
-              disabled={isStreaming || !activityId}
-            >
-              <Globe className="h-4 w-4" />
-              {isPublished ? "Published" : "Publish"}
-            </Button>
+            {activityId && !isStreaming && (
+              <Button
+                variant={isPublished ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setPublishDialogOpen(true)}
+                disabled={isStreaming || !activityId}
+              >
+                <Globe className="h-4 w-4" />
+                {isPublished ? "Published" : "Publish"}
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
@@ -126,6 +128,13 @@ export function ActivityPanel({
             <pre className="text-xs py-2 px-3 overflow-auto whitespace-pre-wrap">
               {code}
             </pre>
+          ) : activityId ? (
+            <iframe
+              src={activityUrl || ""}
+              className="w-full h-full"
+              sandbox="allow-scripts allow-same-origin"
+              title={name}
+            />
           ) : (
             <iframe
               srcDoc={code}
