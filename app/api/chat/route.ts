@@ -12,6 +12,7 @@ import {
 } from "ai";
 import { createActivity } from "./tools/create-activity";
 import { queryEvents } from "./tools/query-events";
+import { createAnalytics } from "./tools/create-analytics";
 import { getProjectById } from "@/lib/db/queries/projects";
 import { auth } from "@clerk/nextjs/server";
 import { SYSTEM_PROMPT } from "./prompts";
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
         tools: {
           createActivity: createActivity(projectId),
           queryEvents: queryEvents(projectId),
+          createAnalytics: createAnalytics(projectId),
         },
         maxOutputTokens: 64000,
         stopWhen: stepCountIs(20),

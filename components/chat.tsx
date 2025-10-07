@@ -15,6 +15,8 @@ import { consumeProjectPrompt } from "@/lib/utils";
 import { DefaultChatTransport } from "ai";
 import { ActivityCard } from "@/components/activity-card";
 import { ActivityPanel } from "@/components/activity-panel";
+import { AnalyticsCard } from "@/components/analytics-card";
+import { AnalyticsPanel } from "@/components/analytics-panel";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -42,10 +44,21 @@ interface ActivityData {
   activityId: string | null;
 }
 
+interface AnalyticsData {
+  messageIndex: number;
+  partIndex: number;
+  name: string;
+  code: string;
+}
+
+type PanelType = 'activity' | 'analytics' | null;
+
 export function Chat({ projectId, initialMessages }: ChatProps) {
   const [input, setInput] = useState("");
   const [hasInitialized, setHasInitialized] = useState(false);
   const [openActivityId, setOpenActivityId] = useState<string | null>(null);
+  const [openAnalyticsId, setOpenAnalyticsId] = useState<string | null>(null);
+  const [openPanelType, setOpenPanelType] = useState<PanelType>(null);
 
   const { messages, sendMessage, status } = useChat<ChatMessage>({
     messages: initialMessages,
@@ -90,13 +103,42 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     };
   };
 
+  // Get analytics by ID (messageIndex-partIndex)
+  const getAnalytics = (analyticsId: string): AnalyticsData | null => {
+    const [messageIndex, partIndex] = analyticsId.split("-").map(Number);
+    const message = messages[messageIndex];
+    if (!message) return null;
+
+    const part = message.parts[partIndex];
+    if (part?.type !== "tool-createAnalytics") return null;
+
+    return {
+      messageIndex,
+      partIndex,
+      name: part.input?.name || "Untitled Analytics",
+      code: part.input?.code || "",
+    };
+  };
+
   const openActivity = getActivity(openActivityId || "");
+  const openAnalytics = getAnalytics(openAnalyticsId || "");
+
   // Activity is streaming if code field is null or state is not output-available
   const isActivityStreaming = openActivity
     ? (() => {
         const part =
           messages[openActivity.messageIndex]?.parts[openActivity.partIndex];
         if (part?.type !== "tool-createActivity") return false;
+        return !part.input?.code || part.state !== "output-available";
+      })()
+    : false;
+
+  // Analytics is streaming if code field is null or state is not output-available
+  const isAnalyticsStreaming = openAnalytics
+    ? (() => {
+        const part =
+          messages[openAnalytics.messageIndex]?.parts[openAnalytics.partIndex];
+        if (part?.type !== "tool-createAnalytics") return false;
         return !part.input?.code || part.state !== "output-available";
       })()
     : false;
@@ -157,13 +199,15 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     setInput("");
   };
 
+  const hasOpenPanel = openActivity || openAnalytics;
+
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
-      <ResizablePanel defaultSize={openActivity ? 50 : 100} minSize={30}>
+      <ResizablePanel defaultSize={hasOpenPanel ? 50 : 100} minSize={30}>
         <div className="flex flex-col h-full">
           <Conversation className="flex-1">
             <ConversationContent
-              className={`${openActivity ? "" : "max-w-2xl mx-auto "}`}
+              className={`${hasOpenPanel ? "" : "max-w-2xl mx-auto "}`}
             >
               {messages.map((message, messageIndex) => {
                 return (
@@ -195,7 +239,32 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                               key={`${message.id}-${partIndex}`}
                               name={activityName}
                               isStreaming={isActivityStreaming}
-                              onClick={() => setOpenActivityId(activityId)}
+                              onClick={() => {
+                                setOpenActivityId(activityId);
+                                setOpenAnalyticsId(null);
+                                setOpenPanelType('activity');
+                              }}
+                            />
+                          );
+
+                        case "tool-createAnalytics":
+                          const analyticsId = `${messageIndex}-${partIndex}`;
+                          const analyticsName =
+                            part.input?.name || "Creating analytics...";
+                          const isAnalyticsStreamingLocal =
+                            !part.input?.code ||
+                            part.state !== "output-available";
+
+                          return (
+                            <AnalyticsCard
+                              key={`${message.id}-${partIndex}`}
+                              name={analyticsName}
+                              isStreaming={isAnalyticsStreamingLocal}
+                              onClick={() => {
+                                setOpenAnalyticsId(analyticsId);
+                                setOpenActivityId(null);
+                                setOpenPanelType('analytics');
+                              }}
                             />
                           );
 
@@ -228,7 +297,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
           </Conversation>
 
           <div
-            className={`p-4 ${openActivity ? "" : "max-w-2xl mx-auto w-full"}`}
+            className={`p-4 ${hasOpenPanel ? "" : "max-w-2xl mx-auto w-full"}`}
           >
             <PromptForm
               value={input}
@@ -239,7 +308,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
         </div>
       </ResizablePanel>
 
-      {openActivity && (
+      {openPanelType === 'activity' && openActivity && (
         <>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={50} minSize={30}>
@@ -249,7 +318,27 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
               isStreaming={isActivityStreaming}
               projectId={projectId}
               activityId={openActivity.activityId}
-              onClose={() => setOpenActivityId(null)}
+              onClose={() => {
+                setOpenActivityId(null);
+                setOpenPanelType(null);
+              }}
+            />
+          </ResizablePanel>
+        </>
+      )}
+
+      {openPanelType === 'analytics' && openAnalytics && (
+        <>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <AnalyticsPanel
+              name={openAnalytics.name}
+              code={openAnalytics.code}
+              isStreaming={isAnalyticsStreaming}
+              onClose={() => {
+                setOpenAnalyticsId(null);
+                setOpenPanelType(null);
+              }}
             />
           </ResizablePanel>
         </>
