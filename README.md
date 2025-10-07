@@ -1,6 +1,6 @@
 # Froggy - See _how_ students think and not just their scores
 
-An open-source AI-powered platform for educators to create interactive educational activities and analyze student learning patterns that goes beyond their scores.
+An open-source AI-powered platform for educators to create interactive educational activities and analyze student learning patterns that goes beyond their scores. See where they hesitate, struggle, and succeed
 
 <img src="./docs/images/froggy-home copy.png" alt="Home Page" width="500" />
 
