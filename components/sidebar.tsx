@@ -14,7 +14,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ProjectListItem } from "@/components/project-list-item";
 
 export function Sidebar() {
-  const { isOpen, toggle } = useSidebarStore();
+  const { isOpen, hasHydrated, toggle } = useSidebarStore();
   const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
@@ -56,6 +56,10 @@ export function Sidebar() {
   const handleCreateProject = () => {
     createProjectMutation.mutate();
   };
+
+  if (!hasHydrated) {
+    return null;
+  }
 
   return (
     <aside
