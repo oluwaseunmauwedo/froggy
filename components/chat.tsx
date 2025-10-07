@@ -52,7 +52,7 @@ interface AnalyticsData {
   code: string;
 }
 
-type PanelType = 'activity' | 'analytics' | null;
+type PanelType = "activity" | "analytics" | null;
 
 export function Chat({ projectId, initialMessages }: ChatProps) {
   const [input, setInput] = useState("");
@@ -243,7 +243,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                               onClick={() => {
                                 setOpenActivityId(activityId);
                                 setOpenAnalyticsId(null);
-                                setOpenPanelType('activity');
+                                setOpenPanelType("activity");
                               }}
                             />
                           );
@@ -264,7 +264,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
                               onClick={() => {
                                 setOpenAnalyticsId(analyticsId);
                                 setOpenActivityId(null);
-                                setOpenPanelType('analytics');
+                                setOpenPanelType("analytics");
                               }}
                             />
                           );
@@ -300,12 +300,13 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
               value={input}
               onChange={setInput}
               onSubmit={handleSubmit}
+              isLoading={status === "streaming" || status === "submitted"}
             />
           </div>
         </div>
       </ResizablePanel>
 
-      {openPanelType === 'activity' && openActivity && (
+      {openPanelType === "activity" && openActivity && (
         <>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={50} minSize={30}>
@@ -324,7 +325,7 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
         </>
       )}
 
-      {openPanelType === 'analytics' && openAnalytics && (
+      {openPanelType === "analytics" && openAnalytics && (
         <>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={50} minSize={30}>

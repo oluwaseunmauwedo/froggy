@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, Paperclip } from "lucide-react";
+import { ArrowUp, Paperclip, Loader2 } from "lucide-react";
 
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
@@ -19,9 +19,10 @@ interface PromptFormProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  isLoading?: boolean;
 }
 
-export function PromptForm({ value, onChange, onSubmit }: PromptFormProps) {
+export function PromptForm({ value, onChange, onSubmit, isLoading = false }: PromptFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit();
@@ -66,8 +67,9 @@ export function PromptForm({ value, onChange, onSubmit }: PromptFormProps) {
               className="ml-auto rounded-full"
               variant="default"
               size="icon-sm"
+              disabled={isLoading}
             >
-              <ArrowUp />
+              {isLoading ? <Loader2 className="animate-spin" /> : <ArrowUp />}
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
