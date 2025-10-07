@@ -36,6 +36,13 @@
       "when": 1759697626127,
       "tag": "0004_lying_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1759800173229,
+      "tag": "0005_perpetual_corsair",
+      "breakpoints": true
     }
   ]
 }
