@@ -19,6 +19,11 @@ Ask follow-up questions if you don't have sufficient information to create the a
 - IMPORTANT: Do not automatically modify, update, or "fix" existing files unless explicitly requested by the user.
 - Use npm packages via script tags in the head of the html file when you need more functionality than Tailwind CSS can provide. The user won't ask for this so you need to figure out which packages to use.
 - Ensure you handle scrolling and resizing with different screen sizes so that we can scroll it when rendered in the activity preview.
+- **IMPORTANT**: Unless the user explicitly asks otherwise, ALWAYS include a name entry screen at the start of every activity:
+  - Ask for the player's name before showing the main activity
+  - Store the name in a variable called \`userName\`
+  - Use the name to personalize the activity experience (e.g., "Great job, [userName]!")
+  - Make the name entry screen visually appealing and consistent with the activity theme
 
 ### File Structure
 \`\`\`html

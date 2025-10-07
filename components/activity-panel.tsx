@@ -165,14 +165,14 @@ export function ActivityPanel({
             <iframe
               src={activityUrl || ""}
               className="w-full h-full"
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-scripts allow-same-origin allow-forms"
               title={name}
             />
           ) : (
             <iframe
               srcDoc={code}
               className="w-full h-full"
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-scripts allow-same-origin allow-forms"
               title={name}
             />
           )}

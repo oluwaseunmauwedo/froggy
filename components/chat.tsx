@@ -116,24 +116,24 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
   }, [projectId, hasInitialized, sendMessage]);
 
   // Auto-open activity panel when a new activity is being created in the last assistant message
-  useEffect(() => {
-    if (messages.length === 0) return;
+  // useEffect(() => {
+  //   if (messages.length === 0) return;
 
-    const lastMessage = messages.at(-1);
-    if (!lastMessage) return;
+  //   const lastMessage = messages.at(-1);
+  //   if (!lastMessage) return;
 
-    if (lastMessage.role === "assistant") {
-      const lastPart = lastMessage.parts.at(-1);
-      if (!lastPart) return;
+  //   if (lastMessage.role === "assistant") {
+  //     const lastPart = lastMessage.parts.at(-1);
+  //     if (!lastPart) return;
 
-      if (lastPart.type === "tool-createActivity") {
-        const activityId = `${messages.length - 1}-${
-          lastMessage.parts.length - 1
-        }`;
-        setOpenActivityId(activityId);
-      }
-    }
-  }, [messages]);
+  //     if (lastPart.type === "tool-createActivity") {
+  //       const activityId = `${messages.length - 1}-${
+  //         lastMessage.parts.length - 1
+  //       }`;
+  //       setOpenActivityId(activityId);
+  //     }
+  //   }
+  // }, [messages]);
 
   const handleSubmit = () => {
     if (!input.trim()) return;
