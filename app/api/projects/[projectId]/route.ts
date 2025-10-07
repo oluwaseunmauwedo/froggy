@@ -8,7 +8,7 @@ import {
 // GET /api/projects/[projectId] - Get a specific project
 export async function GET(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -17,7 +17,7 @@ export async function GET(
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
     const project = await getProjectById(projectId, userId);
 
     if (!project) {
@@ -34,7 +34,7 @@ export async function GET(
 // PATCH /api/projects/[projectId] - Update a project
 export async function PATCH(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -43,7 +43,7 @@ export async function PATCH(
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
     const body = await req.json();
     const { name } = body;
 
@@ -72,7 +72,7 @@ export async function PATCH(
 // DELETE /api/projects/[projectId] - Delete a project
 export async function DELETE(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -81,7 +81,7 @@ export async function DELETE(
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
     const success = await deleteProject(projectId, userId);
 
     if (!success) {
