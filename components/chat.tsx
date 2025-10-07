@@ -115,6 +115,26 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
     }
   }, [projectId, hasInitialized, sendMessage]);
 
+  // Auto-open activity panel when a new activity is being created in the last assistant message
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const lastMessage = messages.at(-1);
+    if (!lastMessage) return;
+
+    if (lastMessage.role === "assistant") {
+      const lastPart = lastMessage.parts.at(-1);
+      if (!lastPart) return;
+
+      if (lastPart.type === "tool-createActivity") {
+        const activityId = `${messages.length - 1}-${
+          lastMessage.parts.length - 1
+        }`;
+        setOpenActivityId(activityId);
+      }
+    }
+  }, [messages]);
+
   const handleSubmit = () => {
     if (!input.trim()) return;
 
@@ -136,27 +156,23 @@ export function Chat({ projectId, initialMessages }: ChatProps) {
         <div className="flex flex-col h-full">
           <Conversation className="flex-1">
             <ConversationContent
-              className={
-                openActivity ? "" : "max-w-2xl mx-auto flex flex-col gap-4"
-              }
+              className={`${openActivity ? "" : "max-w-2xl mx-auto "}`}
             >
               {messages.map((message, messageIndex) => {
                 return (
-                  <div key={message.id} className="flex flex-col gap-2">
+                  <div key={message.id} className="">
                     {message.parts.map((part, partIndex) => {
                       switch (part.type) {
                         case "text":
                           return (
-                            <div
+                            <Message
                               key={`${message.id}-${partIndex}`}
-                              className={
-                                message.role === "user"
-                                  ? "self-end bg-accent text-accent-foreground p-2 px-3 rounded-md w-fit"
-                                  : ""
-                              }
+                              from={message.role}
                             >
-                              <Response>{part.text}</Response>
-                            </div>
+                              <MessageContent variant="flat">
+                                <Response>{part.text}</Response>
+                              </MessageContent>
+                            </Message>
                           );
                         case "tool-createActivity":
                           const activityId = `${messageIndex}-${partIndex}`;

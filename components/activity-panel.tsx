@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 interface ActivityPanelProps {
@@ -35,6 +35,8 @@ export function ActivityPanel({
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [userScrolled, setUserScrolled] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const activityUrl = activityId
     ? `${window.location.origin}/activity/${activityId}/play`
@@ -98,11 +100,38 @@ export function ActivityPanel({
     }
   };
 
+  // Auto-scroll to bottom when code updates during streaming
+  useEffect(() => {
+    if (isStreaming && !userScrolled && contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [code, isStreaming, userScrolled]);
+
+  // Reset userScrolled when streaming starts
+  useEffect(() => {
+    if (isStreaming) {
+      setUserScrolled(false);
+    }
+  }, [isStreaming]);
+
+  const handleScroll = () => {
+    if (!contentRef.current || !isStreaming) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 10;
+
+    if (!isAtBottom) {
+      setUserScrolled(true);
+    } else {
+      setUserScrolled(false);
+    }
+  };
+
   return (
     <>
       <div className="h-full bg-background flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between py-1 px-2 border-b">
+        <div className="flex items-center justify-between py-1 px-3 border-b">
           <h2 className="font-semibold text-lg">{name}</h2>
           <div className="flex items-center gap-2">
             {activityId && !isStreaming && (
@@ -123,9 +152,13 @@ export function ActivityPanel({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto">
+        <div
+          ref={contentRef}
+          className="flex-1 overflow-auto"
+          onScroll={handleScroll}
+        >
           {isStreaming ? (
-            <pre className="text-xs py-2 px-3 overflow-auto whitespace-pre-wrap">
+            <pre className="text-xs py-2 px-3 whitespace-pre-wrap">
               {code}
             </pre>
           ) : activityId ? (
