@@ -17,7 +17,7 @@ import { getProjectById } from "@/lib/db/queries/projects";
 import { auth } from "@clerk/nextjs/server";
 import { SYSTEM_PROMPT } from "./prompts";
 
-export const maxDuration = 5 * 60;
+export const maxDuration = 300;
 
 type RequestBody = {
   message: UIMessage;
